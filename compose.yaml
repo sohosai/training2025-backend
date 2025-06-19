@@ -1,0 +1,45 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./src:/app/src:cached
+      - ./migrations:/app/migrations:cached
+    ports:
+      - 8080:8080
+    networks:
+      - app-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    command:
+      - /bin/sh
+      - -c
+      - |
+        goose up
+        cd ./src
+        go mod download
+        go run main.go
+
+  postgres:
+    image: postgres:17-bullseye
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      - app-network
+    healthcheck:
+      test: pg_isready -U "${POSTGRES_USER}" || exit 1
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  app-network:
+
+volumes:
+  postgres-data:
