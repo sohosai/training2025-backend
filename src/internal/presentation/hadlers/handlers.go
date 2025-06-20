@@ -26,4 +26,23 @@ func Handle(r *gin.Engine, repos domain.Repositories) {
 			postModels := utils.Map(posts, models.IntoPostModel)
 			c.IndentedJSON(http.StatusOK, postModels)
 		})
+
+	r.POST("/posts", func(c *gin.Context) {
+		var req models.CreatePostRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		createdPost, err := repos.PostRepo.CreatePost(domain.CreatePostArgs{
+			Text:      req.Text,
+			CreatedBy: req.CreatedBy,
+		})
+		if err != nil {
+			c.IndentedJSON(http.StatusInternalServerError, models.Message{Message: "Internal Error"})
+			return
+		}
+
+		c.IndentedJSON(http.StatusCreated, models.CreatePostResponse{Id: createdPost.Id})
+	})
 }

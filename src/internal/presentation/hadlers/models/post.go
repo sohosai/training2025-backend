@@ -15,6 +15,15 @@ type PostModel struct {
 	DeletedAt time.Time `json:"deleted_at"`
 }
 
+type CreatePostRequest struct {
+	Text      string `json:"text" binding:"required"`
+	CreatedBy string `json:"created_by" binding:"required"`
+}
+
+type CreatePostResponse struct {
+	Id string `json:"id"`
+}
+
 func IntoPostModel(post domain.Post) PostModel {
 	return PostModel{
 		Id:        post.Id,

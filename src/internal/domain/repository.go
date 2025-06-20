@@ -17,6 +17,12 @@ type Post struct {
 	DeletedAt time.Time
 }
 
+type CreatePostArgs struct {
+	Text      string
+	CreatedBy string
+}
+
 type PostRepository interface {
 	GetPosts() ([]Post, error)
+	CreatePost(args CreatePostArgs) (Post, error)
 }
