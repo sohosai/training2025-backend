@@ -24,13 +24,15 @@ services:
         go mod tidy
         go mod download
         go run main.go
-
   postgres:
     image: postgres:17-bullseye
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
     env_file:
       - .env
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
     networks:
       - app-network
     healthcheck:
