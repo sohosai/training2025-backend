@@ -21,6 +21,7 @@ services:
       - |
         goose up
         cd ./src
+        go mod tidy
         go mod download
         go run main.go
 
