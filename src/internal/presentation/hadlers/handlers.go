@@ -1,6 +1,7 @@
 package hadlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,11 +20,32 @@ func Handle(r *gin.Engine, repos domain.Repositories) {
 		func(c *gin.Context) {
 			posts, err := repos.PostRepo.GetPosts()
 			if err != nil {
-				c.IndentedJSON(http.StatusInternalServerError, models.Message{Message: "Internal Error"})
+				c.IndentedJSON(http.StatusInternalServerError, models.Message{Message: fmt.Sprintf("<%s>", err)})
 				return
 			}
 
 			postModels := utils.Map(posts, models.IntoPostModel)
 			c.IndentedJSON(http.StatusOK, postModels)
 		})
+
+	r.POST("/posts",
+
+		func(c *gin.Context) {
+			var newPostrequest models.CreatePostRequest
+			err := c.BindJSON(&newPostrequest)
+
+			if err != nil {
+				c.IndentedJSON(http.StatusInternalServerError, models.Message{Message: fmt.Sprintf("<%s>", err)})
+
+				return
+			}
+			newPost := newPostrequest.Value()
+			id, err := repos.PostRepo.CreatePosts(&newPost)
+			if err != nil {
+				c.IndentedJSON(http.StatusInternalServerError, models.Message{Message: fmt.Sprintf("<%s>", err)})
+				return
+			}
+			c.IndentedJSON(http.StatusOK, id)
+		})
+
 }

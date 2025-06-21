@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/sohosai/go-gin-sqlx-pg-template/internal/domain"
@@ -15,12 +16,12 @@ type PgPostRepository struct {
 }
 
 type PostRow struct {
-	Id        string    `db:"id"`
-	Text      string    `db:"text"`
-	CreatedBy string    `db:"created_by"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
-	DeletedAt time.Time `db:"deleted_at"`
+	Id        string     `db:"id"`
+	Text      string     `db:"text"`
+	CreatedBy string     `db:"created_by"`
+	CreatedAt time.Time  `db:"created_at"`
+	UpdatedAt time.Time  `db:"updated_at"`
+	DeletedAt *time.Time `db:"deleted_at"`
 }
 
 func intoPost(row PostRow) domain.Post {
@@ -30,7 +31,6 @@ func intoPost(row PostRow) domain.Post {
 		CreatedBy: row.CreatedBy,
 		CreatedAt: row.CreatedAt,
 		UpdatedAt: row.UpdatedAt,
-		DeletedAt: row.DeletedAt,
 	}
 }
 
@@ -46,4 +46,22 @@ func (r PgPostRepository) GetPosts() ([]domain.Post, error) {
 	}
 
 	return utils.Map(postRows, intoPost), nil
+}
+
+func (r PgPostRepository) CreatePosts(post *domain.CreatedPost) (string, error) {
+	id := uuid.New().String()
+
+	if _, err := r.DB.Exec(`
+		INSERT INTO posts  (
+			text, created_by, id
+		)
+		VALUES (
+		$1, $2 , $3)`,
+		post.Text, post.CreatedBy, id,
+	); err != nil {
+		log.Printf("sqlx.DB.Select error %s", err)
+		return id, err
+	}
+
+	return id, nil
 }
