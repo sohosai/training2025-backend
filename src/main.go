@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+
 	fmt.Println("Application Initializing...")
 
 	dsn := os.Getenv("POSTGRES_DSN")
