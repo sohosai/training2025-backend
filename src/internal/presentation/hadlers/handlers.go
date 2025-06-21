@@ -45,7 +45,7 @@ func Handle(r *gin.Engine, repos domain.Repositories) {
 				c.IndentedJSON(http.StatusInternalServerError, models.Message{Message: fmt.Sprintf("<%s>", err)})
 				return
 			}
-			c.IndentedJSON(http.StatusOK, id)
+			c.IndentedJSON(http.StatusOK, models.CreatePostResponse{Id: id})
 		})
 
 }
