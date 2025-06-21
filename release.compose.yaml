@@ -2,12 +2,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: dev.Dockerfile
-    volumes:
-      - ./src:/app/src:cached
-      - ./migrations:/app/migrations:cached
-    ports:
-      - 8080:8080
+      dockerfile: release.Dockerfile
     networks:
       - app-network
       - portainer-traefik
@@ -31,10 +26,10 @@ services:
     labels:
       traefik.enable: "true"
       traefik.docker.network: "portainer-traefik"
-      traefik.http.services.sos24-server-stg.loadbalancer.server.port: ${APP_PORT}
-      traefik.http.routers.sos24-server-stg.rule: Host(`sos24-api-stg.playground.sohosai.com`)
-      traefik.http.routers.sos24-server-stg.entrypoints: websecure
-      traefik.http.routers.sos24-server-stg.tls.certresolver: leresolver
+      traefik.http.services.training2025-backend.loadbalancer.server.port: ${APP_PORT}
+      traefik.http.routers.training2025-backend.rule: Host(`training25api.playground.sohosai.com`)
+      traefik.http.routers.training2025-backend.entrypoints: websecure
+      traefik.http.routers.training2025-backend.tls.certresolver: leresolver
 
   postgres:
     image: postgres:17-bullseye
