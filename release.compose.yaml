@@ -1,0 +1,66 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./src:/app/src:cached
+      - ./migrations:/app/migrations:cached
+    ports:
+      - 8080:8080
+    networks:
+      - app-network
+      - portainer-traefik
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - POSTGRES_DSN=${POSTGRES_DSN}
+      - GOOSE_DRIVER=${GOOSE_DRIVER}
+      - GOOSE_DBSTRING=${GOOSE_DBSTRING}
+      - GOOSE_MIGRATION_DIR=${GOOSE_MIGRATION_DIR}
+    command:
+      - /bin/sh
+      - -c
+      - |
+        goose up
+        cd ./src
+        go mod tidy
+        go mod download
+        go run main.go
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: "portainer-traefik"
+      traefik.http.services.sos24-server-stg.loadbalancer.server.port: ${APP_PORT}
+      traefik.http.routers.sos24-server-stg.rule: Host(`sos24-api-stg.playground.sohosai.com`)
+      traefik.http.routers.sos24-server-stg.entrypoints: websecure
+      traefik.http.routers.sos24-server-stg.tls.certresolver: leresolver
+
+  postgres:
+    image: postgres:17-bullseye
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOSTNAME=${POSTGRES_HOSTNAME}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DSN=${POSTGRES_DSN}
+      - TZ=${TZ}
+    networks:
+      - app-network
+    healthcheck:
+      test: pg_isready -U "${POSTGRES_USER}" || exit 1
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  app-network:
+  portainer-traefik:
+    name: portainer-traefik
+    external: true
+
+volumes:
+  postgres-data:
