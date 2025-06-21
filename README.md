@@ -4,7 +4,7 @@
 
 超簡易的SNSサービスを提供します。
 
-`training25api.playground.sohosai.com:8080`あたりでホストされる予定
+研修中は`https://training25api.playground.sohosai.com`で稼働しています。
 
 ## エンドポイント・操作一覧
 
