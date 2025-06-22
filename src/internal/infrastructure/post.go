@@ -65,3 +65,17 @@ func (r PgPostRepository) CreatePosts(post *domain.CreatedPost) (string, error) 
 
 	return id, nil
 }
+
+func (r PgPostRepository) GetPostsById(id string) ([]domain.Post, error) {
+	postRows := []PostRow{}
+	if err := r.DB.Select(&postRows, `
+		SELECT 
+			id, text, created_by, created_at, updated_at, deleted_at
+		FROM posts  WHERE id = $1`, id,
+	); err != nil {
+		log.Printf("sqlx.DB.Select error %s", err)
+		return nil, err
+	}
+
+	return utils.Map(postRows, intoPost), nil
+}
