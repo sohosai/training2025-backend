@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/sohosai/go-gin-sqlx-pg-template/internal/domain"
 	"github.com/sohosai/go-gin-sqlx-pg-template/internal/infrastructure"
@@ -23,6 +25,27 @@ func main() {
 	repos := domain.Repositories{PostRepo: infrastructure.PgPostRepository{DB: db}}
 
 	r := gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{
+			"*",
+		},
+		AllowMethods: []string{
+			"POST",
+			"GET",
+			"OPTIONS",
+		},
+		AllowHeaders: []string{
+			"Access-Control-Allow-Credentials",
+			"Access-Control-Allow-Headers",
+			"Content-Type",
+			"Content-Length",
+			"Accept-Encoding",
+			"Authorization",
+		},
+		AllowCredentials: false,
+		MaxAge:           24 * time.Hour,
+	}))
+
 	hadlers.Handle(r, repos)
 
 	fmt.Println("Application Starts!")
