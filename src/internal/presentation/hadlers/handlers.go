@@ -47,5 +47,18 @@ func Handle(r *gin.Engine, repos domain.Repositories) {
 			}
 			c.IndentedJSON(http.StatusOK, models.CreatePostResponse{Id: id})
 		})
+	r.GET("/posts/:id",
+
+		func(c *gin.Context) {
+			searchid := c.Param("id")
+			posts, err := repos.PostRepo.GetPostsById(searchid)
+			if err != nil {
+				c.IndentedJSON(http.StatusInternalServerError, models.Message{Message: fmt.Sprintf("<%s>", err)})
+				return
+			}
+
+			postModels := utils.Map(posts, models.IntoPostModel)
+			c.IndentedJSON(http.StatusOK, postModels)
+		})
 
 }

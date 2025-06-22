@@ -40,3 +40,10 @@ func IntoPostModel(post domain.Post) PostModel {
 		UpdatedAt: post.UpdatedAt,
 	}
 }
+
+/* domain.Post 型の引数をPostModel( = 実際にAPIが返すJson)に変える関数の実装
+→ idから取ってきたやつをここに入れられればok
+func (引数) 関数名() (戻り値1,戻り値2){
+処理
+}
+*/

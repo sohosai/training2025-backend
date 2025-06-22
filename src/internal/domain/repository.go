@@ -25,4 +25,14 @@ type CreatedPost struct {
 type PostRepository interface {
 	GetPosts() ([]Post, error)
 	CreatePosts(post *CreatedPost) (string, error)
+	GetPostsById(string) ([]Post, error)
+}
+
+type PostIdResponse struct {
+	Id        string
+	Text      string
+	CreatedBy string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt time.Time
 }
